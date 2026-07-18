@@ -118,9 +118,9 @@ static/src/
 - [x] Implementación de los repositorios sobre el ORM
 - [x] Tests de integración de los use cases contra Postgres real (en Docker)
 
-**Fase 5 — Consumer WebSocket**
-- [ ] `GameConsumer`: conecta cliente ↔ use cases, delgado, sin lógica de negocio
-- [ ] Eventos: join, start, answer, reveal, next, end, disconnect/reconexión
+**Fase 5 — Consumer WebSocket** ✅ completada
+- [x] `GameConsumer`: conecta cliente ↔ use cases, delgado, sin lógica de negocio
+- [x] Eventos: join, start, answer, reveal, next, end, disconnect/reconexión
 
 **Fase 6 — UI del host (proyector)**
 - [ ] Pantalla de sala: código + QR para unirse
