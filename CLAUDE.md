@@ -101,11 +101,11 @@ static/src/
 - [x] Reorganizar la app `trivia` en `apps/questions` y `apps/game` (estructura de arriba)
 - [x] Consumer de prueba (echo/ping) para validar que el WebSocket funciona de punta a punta en Docker
 
-**Fase 2 — Banco de preguntas**
-- [ ] Modelos `Category`/`QuestionSet`, `Question`, `AnswerOption`
-- [ ] Django admin para gestión manual
-- [ ] Management command `import_questions` (Excel → DB), con reporte de filas inválidas/duplicadas
-- [ ] Importar las 1000 preguntas reales y validar una muestra a mano
+**Fase 2 — Banco de preguntas** ✅ completada
+- [x] Modelos `Category`/`QuestionSet`, `Question`, `AnswerOption`
+- [x] Django admin para gestión manual
+- [x] Management command `import_questions` (Excel → DB), con reporte de filas inválidas/duplicadas
+- [x] Importar las 1000 preguntas reales y validar una muestra a mano
 
 **Fase 3 — Motor del juego (dominio puro)**
 - [ ] `LadderStrategy` (escalera de puntos configurable)
