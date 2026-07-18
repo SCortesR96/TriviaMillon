@@ -113,10 +113,10 @@ static/src/
 - [x] Interfaces de repositorio (`QuestionRepository`, `SessionRepository`, `PlayerRepository`)
 - [x] Tests unitarios del dominio (sin DB, sin Django) — cobertura alta porque es la parte más crítica
 
-**Fase 4 — Use cases + repositorios Django**
-- [ ] `CreateSession`, `JoinSession` (código de sala + nickname), `StartQuestion`, `SubmitAnswer`, `RevealAnswer`, `AdvanceQuestion`, `EndSession`
-- [ ] Implementación de los repositorios sobre el ORM
-- [ ] Tests de integración de los use cases contra Postgres real (en Docker)
+**Fase 4 — Use cases + repositorios Django** ✅ completada
+- [x] `CreateSession`, `JoinSession` (código de sala + nickname), `StartQuestion`, `SubmitAnswer`, `RevealAnswer`, `AdvanceQuestion`, `EndSession`
+- [x] Implementación de los repositorios sobre el ORM
+- [x] Tests de integración de los use cases contra Postgres real (en Docker)
 
 **Fase 5 — Consumer WebSocket**
 - [ ] `GameConsumer`: conecta cliente ↔ use cases, delgado, sin lógica de negocio
