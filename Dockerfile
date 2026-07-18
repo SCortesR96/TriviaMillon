@@ -31,4 +31,7 @@ RUN tailwindcss -i tailwind/input.css -o static/dist/output.css --minify
 RUN SECRET_KEY=collectstatic-build-only python manage.py collectstatic --noinput
 
 EXPOSE 8000
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
+# migrate corre en cada arranque del contenedor (solo aqui: docker-compose.yml pisa este CMD
+# en dev con runserver, asi que esto nunca se ejecuta en local). exec para que daphne quede
+# como PID 1 y reciba bien las señales de apagado.
+CMD ["sh", "-c", "python manage.py migrate --noinput && exec daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
