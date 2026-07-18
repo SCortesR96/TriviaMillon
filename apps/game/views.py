@@ -17,6 +17,11 @@ def _player_join_url(request, code: str) -> str:
     return request.build_absolute_uri(f'{path}?code={code}')
 
 
+def home(request):
+    """Landing: elegir entre crear una sala (host) o unirse a una (jugador)."""
+    return render(request, 'home.html')
+
+
 def host_new_session(request):
     """Formulario para que el host elija QuestionSet + LadderTemplate y cree una sala."""
     if request.method == 'POST':

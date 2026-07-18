@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}TriviaMillon{% endblock %}
+{% block content %}
+<div class="min-h-full flex items-center justify-center p-6">
+  <div class="w-full max-w-md space-y-8 text-center">
+    <h1 class="text-4xl font-bold text-amber-400">TriviaMillon</h1>
+    <p class="text-slate-400">Trivia en vivo, estilo "¿Quién Quiere Ser Millonario?", multijugador desde el celular.</p>
+    <div class="space-y-4">
+      <a href="{% url 'game:host_new_session' %}"
+         class="block w-full rounded-lg bg-amber-500 px-4 py-4 text-lg font-semibold text-slate-950 transition hover:bg-amber-400">
+        Soy el host — crear una sala
+      </a>
+      <a href="{% url 'game:player_join' %}"
+         class="block w-full rounded-lg bg-slate-800 px-4 py-4 text-lg font-semibold text-slate-100 transition hover:bg-slate-700">
+        Soy jugador — unirme con un código
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
