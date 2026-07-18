@@ -25,4 +25,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 COPY --from=alpine_vendor /vendor/dist/alpine.min.js static/vendor/alpine.min.js
 
-RUN tailwindcss -i static/src/input.css -o static/dist/output.css --minify
+RUN tailwindcss -i tailwind/input.css -o static/dist/output.css --minify
+
+# SECRET_KEY real solo se inyecta en runtime (Dokploy); este valor de build no se usa despues.
+RUN SECRET_KEY=collectstatic-build-only python manage.py collectstatic --noinput
+
+EXPOSE 8000
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]

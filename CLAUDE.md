@@ -144,12 +144,12 @@ static/src/
 - [x] Suite de tests del flujo completo (crear sala → unirse varios jugadores → jugar → terminar)
 - [x] Manejo de reconexión de un jugador que pierde la señal
 
-**Fase 10 — Producción**
-- [ ] Servidor ASGI (`daphne`/`uvicorn`) en vez de `runserver`
-- [ ] Redis persistente, Postgres con backups
-- [ ] Static files (`whitenoise` o nginx), `collectstatic`
-- [ ] HTTPS/WSS, `ALLOWED_HOSTS`, `SECRET_KEY` real, `DEBUG=0`
-- [ ] Definir dónde se despliega (VPS, Railway, Fly.io, etc.) — **pendiente de decidir**
+**Fase 10 — Producción** ✅ completada (despliegue: Dokploy sobre VPS Contabo, ya lo administra el usuario)
+- [x] Servidor ASGI (`daphne`) en vez de `runserver` — es el `CMD` del `Dockerfile`; `docker-compose.yml` lo sigue overrideando a `runserver` solo para dev
+- [x] Redis persistente, Postgres con backups — delegado a los servicios gestionados de Dokploy (no requiere código propio; la app ya lee host/puerto/credenciales por variables de entorno)
+- [x] Static files (`whitenoise`), `collectstatic` — corre en build time dentro del `Dockerfile`; `STORAGES["staticfiles"]` usa `CompressedManifestStaticFilesStorage` (nombres con hash, cache inmutable)
+- [x] HTTPS/WSS, `ALLOWED_HOSTS`, `SECRET_KEY` real, `DEBUG=0` — `SECURE_PROXY_SSL_HEADER` + `CSRF_TRUSTED_ORIGINS` agregados para el proxy Traefik de Dokploy (termina TLS y reenvía por HTTP); `SECRET_KEY`/`ALLOWED_HOSTS`/`DEBUG` ya eran configurables por entorno, y ahora arranca con error si `DEBUG=0` y `SECRET_KEY` sigue siendo el de desarrollo
+- [x] Definir dónde se despliega — **decidido: Dokploy + VPS Contabo**
 
 **Fase 11 — Pulido**
 - [ ] Sonidos, animaciones de reveal (aquí sí se justifica algo de CSS custom puntual)
@@ -167,6 +167,6 @@ static/src/
 
 ## Pendientes por decidir (no bloquean el roadmap, se resuelven cuando toque su fase)
 
-- Dónde se despliega en producción (Fase 10)
+- ~~Dónde se despliega en producción (Fase 10)~~ — decidido: Dokploy sobre VPS Contabo
 - Si habrá cuentas de usuario para hosts (login) desde el MVP o se agrega al publicar
 - Si el leaderboard es solo por partida o hay persistencia histórica entre partidas
