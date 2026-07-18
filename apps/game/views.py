@@ -12,10 +12,9 @@ from .models import GameSession, LadderTemplate
 from .services.create_session import CreateSession
 
 
-def _player_join_path(code: str) -> str:
-    # La pantalla de union del jugador se construye en la Fase 7; la ruta ya se fija
-    # aqui para que el QR/enlace del host apunten al lugar correcto desde ahora.
-    return f'/join/?code={code}'
+def _player_join_url(request, code: str) -> str:
+    path = reverse('game:player_join')
+    return request.build_absolute_uri(f'{path}?code={code}')
 
 
 def host_new_session(request):
@@ -45,14 +44,18 @@ def host_session(request, code):
         'session': session,
         'code': code,
         'host_token': request.GET.get('token', ''),
-        'join_url': request.build_absolute_uri(_player_join_path(code)),
+        'join_url': _player_join_url(request, code),
     })
 
 
 def host_qr(request, code):
     """Devuelve un PNG con el QR que apunta a la pantalla de union del jugador."""
-    join_url = request.build_absolute_uri(_player_join_path(code))
-    img = qrcode.make(join_url)
+    img = qrcode.make(_player_join_url(request, code))
     buffer = io.BytesIO()
     img.save(buffer, format='PNG')
     return HttpResponse(buffer.getvalue(), content_type='image/png')
+
+
+def player_join(request):
+    """Pantalla unica del jugador: unirse, sala de espera, responder y ver resultados."""
+    return render(request, 'player/join.html', {'code': request.GET.get('code', '')})

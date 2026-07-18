@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Unirse — TriviaMillon{% endblock %}
+{% block extra_head %}
+  <script src="{% static 'game/player_session.js' %}"></script>
+{% endblock %}
+{% block content %}
+{{ code|json_script:"prefilled-code" }}
+<div
+  x-data="playerSession()"
+  x-init="code = JSON.parse(document.getElementById('prefilled-code').textContent)"
+  class="min-h-full flex flex-col"
+>
+  <div x-show="errorMessage" x-cloak class="bg-red-900/60 px-4 py-2 text-center text-sm text-red-200" x-text="errorMessage"></div>
+
+  <main class="flex-1 flex flex-col justify-center p-5 max-w-md mx-auto w-full">
+
+    <template x-if="screen === 'join'">
+      <form @submit.prevent="join()" class="space-y-4">
+        <h1 class="text-3xl font-bold text-amber-400 text-center mb-6">TriviaMillon</h1>
+        <div class="space-y-2">
+          <label for="code" class="block text-sm font-medium text-slate-300">Codigo de sala</label>
+          <input id="code" x-model="code" type="text" inputmode="text" autocomplete="off" required
+                 class="w-full rounded-lg border-0 bg-slate-800 px-4 py-4 text-center text-2xl font-mono tracking-widest uppercase text-slate-100 focus:ring-2 focus:ring-amber-400">
+        </div>
+        <div class="space-y-2">
+          <label for="nickname" class="block text-sm font-medium text-slate-300">Tu nombre</label>
+          <input id="nickname" x-model="nickname" type="text" autocomplete="off" maxlength="50" required
+                 class="w-full rounded-lg border-0 bg-slate-800 px-4 py-4 text-xl text-slate-100 focus:ring-2 focus:ring-amber-400">
+        </div>
+        <button type="submit"
+                class="w-full rounded-lg bg-amber-500 px-4 py-4 text-lg font-semibold text-slate-950 transition hover:bg-amber-400">
+          Unirse
+        </button>
+      </form>
+    </template>
+
+    <template x-if="screen === 'waiting'">
+      <div class="text-center space-y-4">
+        <p class="text-2xl font-semibold">¡Listo, <span x-text="nickname"></span>!</p>
+        <p class="text-slate-400">Esperando a que el host inicie la partida…</p>
+      </div>
+    </template>
+
+    <div x-show="screen === 'question'" x-cloak class="space-y-6">
+      <h2 class="text-2xl font-bold text-center" x-text="question && question.text"></h2>
+      <div class="space-y-3">
+        <template x-for="(option, index) in (question ? question.options : [])" :key="option.id">
+          <button
+            @click="answer(option.id)"
+            :disabled="hasAnswered"
+            :class="[optionColor(index), hasAnswered && selectedOptionId !== option.id ? 'opacity-40' : '']"
+            class="w-full rounded-xl px-5 py-6 text-lg font-semibold text-white transition disabled:cursor-not-allowed"
+          >
+            <span x-text="option.text"></span>
+          </button>
+        </template>
+      </div>
+      <p x-show="hasAnswered" x-cloak class="text-center text-slate-400">Respuesta enviada, esperando a los demas…</p>
+    </div>
+
+    <template x-if="screen === 'reveal'">
+      <div class="text-center space-y-4">
+        <template x-if="myResult() && myResult().selected_option_id === revealData.correct_option_id">
+          <p class="text-3xl font-bold text-emerald-400">¡Correcto!</p>
+        </template>
+        <template x-if="!myResult() || myResult().selected_option_id !== revealData.correct_option_id">
+          <p class="text-3xl font-bold text-red-400">Incorrecto</p>
+        </template>
+        <p class="text-xl text-slate-300">
+          +<span x-text="myResult() ? myResult().points_awarded : 0"></span> puntos
+        </p>
+      </div>
+    </template>
+
+    <template x-if="screen === 'ended'">
+      <div class="text-center space-y-4">
+        <h2 class="text-2xl font-bold text-amber-400">¡Partida terminada!</h2>
+        <p class="text-lg">Tu lugar: <span class="font-mono" x-text="myRank()"></span> / <span x-text="leaderboard.length"></span></p>
+        <p class="text-lg">Tu puntaje: <span class="font-mono text-amber-400" x-text="myScore()"></span></p>
+      </div>
+    </template>
+
+  </main>
+</div>
+{% endblock %}

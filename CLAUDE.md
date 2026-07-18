@@ -129,12 +129,12 @@ static/src/
 - [x] Pantalla de resultados por pregunta + leaderboard
 - [x] Tailwind, pensado para pantalla grande, pero responsive igual
 
-**Fase 7 — UI del jugador (celular)**
-- [ ] Pantalla de unirse (código + nickname)
-- [ ] Sala de espera
-- [ ] Pantalla de respuesta (botones grandes, mobile-first)
-- [ ] Feedback correcto/incorrecto + puntaje personal + posición en leaderboard
-- [ ] Tailwind, 100% mobile-first, probado en viewport real de celular
+**Fase 7 — UI del jugador (celular)** ✅ completada
+- [x] Pantalla de unirse (código + nickname)
+- [x] Sala de espera
+- [x] Pantalla de respuesta (botones grandes, mobile-first)
+- [x] Feedback correcto/incorrecto + puntaje personal + posición en leaderboard
+- [x] Tailwind, 100% mobile-first, probado en viewport real de celular — pendiente confirmar visualmente en navegador/celular real (ver nota de la Fase 6, sin herramienta de browser en este entorno)
 
 **Fase 8 — Multi-set / configuración de partida**
 - [ ] Host elige `QuestionSet` y `LadderTemplate` al crear la sala
