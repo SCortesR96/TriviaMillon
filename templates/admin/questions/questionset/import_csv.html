@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Inicio</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='questions' %}">Questions</a>
+    &rsaquo; <a href="{% url 'admin:questions_questionset_changelist' %}">Question sets</a>
+    &rsaquo; Importar CSV/Excel
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p>
+    Sube un archivo <code>.csv</code> o <code>.xlsx</code> con las preguntas. Si el banco de
+    preguntas indicado no existe todavía, se crea automáticamente; si ya existe, las preguntas
+    nuevas se agregan ahí (las filas con un <code>id</code> que ya se haya importado antes se
+    omiten, para poder volver a subir el mismo archivo sin duplicar).
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Importar" class="default">
+  </form>
+{% endblock %}
