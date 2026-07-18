@@ -136,9 +136,9 @@ static/src/
 - [x] Feedback correcto/incorrecto + puntaje personal + posición en leaderboard
 - [x] Tailwind, 100% mobile-first, probado en viewport real de celular — pendiente confirmar visualmente en navegador/celular real (ver nota de la Fase 6, sin herramienta de browser en este entorno)
 
-**Fase 8 — Multi-set / configuración de partida**
-- [ ] Host elige `QuestionSet` y `LadderTemplate` al crear la sala
-- [ ] Admin puede gestionar múltiples mazos independientes
+**Fase 8 — Multi-set / configuración de partida** ✅ completada (ya cubierta por las Fases 2/4/6)
+- [x] Host elige `QuestionSet` y `LadderTemplate` al crear la sala — formulario de la Fase 6 (`host/new_session.html`)
+- [x] Admin puede gestionar múltiples mazos independientes — admin de `QuestionSet`/`LadderTemplate` de las Fases 2/4; verificado creando un segundo `QuestionSet` y `LadderTemplate` independientes y confirmando que ambos aparecen por separado en el formulario del host
 
 **Fase 9 — Tests end-to-end**
 - [ ] Suite de tests del flujo completo (crear sala → unirse varios jugadores → jugar → terminar)
