@@ -23,7 +23,7 @@ class PlayerInline(admin.TabularInline):
 
 @admin.register(GameSession)
 class GameSessionAdmin(admin.ModelAdmin):
-    list_display = ['code', 'question_set', 'ladder_template', 'status', 'current_level_index', 'created_at']
+    list_display = ['code', 'question_set', 'ladder_template', 'status', 'current_level_index', 'is_paused', 'created_at']
     list_filter = ['status', 'question_set', 'ladder_template']
     search_fields = ['code']
     inlines = [PlayerInline]

@@ -4,6 +4,7 @@
 {% block extra_head %}
   {{ code|json_script:"session-code" }}
   {{ host_token|json_script:"session-host-token" }}
+  <script src="{% static 'game/sounds.js' %}"></script>
   <script src="{% static 'game/host_session.js' %}"></script>
 {% endblock %}
 {% block content %}
@@ -39,7 +40,10 @@
         <h2 class="text-xl font-semibold">Jugadores (<span x-text="players.length"></span>)</h2>
         <ul class="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto">
           <template x-for="player in players" :key="player.id">
-            <li class="rounded-lg bg-slate-800 px-3 py-2 text-center" x-text="player.nickname"></li>
+            <li class="flex items-center justify-between gap-2 rounded-lg bg-slate-800 px-3 py-2">
+              <span class="truncate" x-text="player.nickname"></span>
+              <button @click="kick(player.id)" title="Expulsar" class="shrink-0 text-slate-500 hover:text-red-400">✕</button>
+            </li>
           </template>
         </ul>
         <button
@@ -53,6 +57,9 @@
     </div>
 
     <div x-show="screen === 'question'" x-cloak class="w-full max-w-4xl space-y-8">
+      <div x-show="paused" x-cloak class="rounded-lg bg-amber-500/20 text-amber-300 text-center py-2 font-semibold">
+        ⏸ Partida en pausa
+      </div>
       <div class="flex items-center justify-between text-slate-400">
         <span>Respondieron <span x-text="answeredCount()"></span> / <span x-text="players.length"></span></span>
         <span class="text-2xl font-mono" x-text="timerSeconds"></span>
@@ -63,9 +70,15 @@
           <div class="rounded-xl bg-slate-800 px-6 py-5 text-lg" x-text="option.text"></div>
         </template>
       </div>
-      <div class="flex justify-center gap-4">
+      <div class="flex flex-wrap justify-center gap-4">
         <button @click="reveal()" class="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-400">
           Revelar respuesta
+        </button>
+        <button @click="togglePause()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
+          <span x-text="paused ? 'Reanudar' : 'Pausar'"></span>
+        </button>
+        <button @click="skip()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
+          Saltar pregunta
         </button>
         <button @click="end()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
           Terminar partida
@@ -101,7 +114,10 @@
       <h2 class="text-3xl font-bold text-amber-400">¡Partida terminada!</h2>
       <ol class="space-y-2">
         <template x-for="(player, index) in leaderboard" :key="player.id">
-          <li class="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3">
+          <li
+            class="leaderboard-row flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3"
+            :style="'animation-delay:' + (index * 120) + 'ms'"
+          >
             <span><span class="text-slate-500 mr-2" x-text="index + 1"></span><span x-text="player.nickname"></span></span>
             <span class="font-mono text-amber-400" x-text="player.score"></span>
           </li>

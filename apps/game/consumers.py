@@ -10,10 +10,12 @@ from .services.advance_question import AdvanceQuestion
 from .services.end_session import EndSession
 from .services.get_active_question import GetActiveQuestion
 from .services.join_session import JoinSession, NicknameTaken, SessionNotJoinable
+from .services.kick_player import KickPlayer, PlayerNotInSession
+from .services.pause_session import PauseSession, ResumeSession, SessionNotInProgress
 from .services.reveal_answer import NoActiveQuestion as RevealNoActiveQuestion
 from .services.reveal_answer import RevealAnswer
 from .services.start_question import SessionNotInLobby, StartQuestion
-from .services.submit_answer import AlreadyAnswered, NoActiveQuestion, SubmitAnswer
+from .services.submit_answer import AlreadyAnswered, NoActiveQuestion, SessionPaused, SubmitAnswer
 
 
 class PingConsumer(AsyncWebsocketConsumer):
@@ -55,6 +57,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.player_id = None
 
     async def disconnect(self, close_code):
+        if self.role == 'player' and self.player_id is not None:
+            await self._clear_player_channel_name(self.player_id)
         if self.group_name:
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
@@ -107,6 +111,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             session.id, _group_name(code), 'player', player_id,
         )
         await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self._set_player_channel_name(player_id, self.channel_name)
         await self.send(text_data=json.dumps({
             'event': 'joined', 'role': 'player', 'player_id': player_id, 'status': session.status,
         }))
@@ -143,7 +148,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self._submit_answer(
                 self.session_id, self.player_id, message['option_id'], message.get('response_time_ms'),
             )
-        except (NoActiveQuestion, AlreadyAnswered) as exc:
+        except (NoActiveQuestion, AlreadyAnswered, SessionPaused) as exc:
             await self._send_error(str(exc))
             return
         await self.send(text_data=json.dumps({'event': 'answer_received'}))
@@ -160,6 +165,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self._broadcast('answer_revealed', result)
 
     async def _handle_next(self, message):
+        # Tambien sirve para "saltar pregunta": el host puede llamar a 'next' sin haber
+        # revelado antes, y nadie recibe puntos por la pregunta saltada (nunca se llamo
+        # a SubmitAnswer con ganador, asi que no hay nada que anotar).
         if self.role != 'host':
             return
         question = await self._advance_question(self.session_id)
@@ -178,6 +186,35 @@ class GameConsumer(AsyncWebsocketConsumer):
             return
         await self._broadcast('game_ended', {'leaderboard': await self._get_players(self.session_id)})
 
+    async def _handle_pause(self, message):
+        if self.role != 'host':
+            return
+        try:
+            await self._pause_session(self.session_id)
+        except SessionNotInProgress as exc:
+            await self._send_error(str(exc))
+            return
+        await self._broadcast('paused', {})
+
+    async def _handle_resume(self, message):
+        if self.role != 'host':
+            return
+        await self._resume_session(self.session_id)
+        await self._broadcast('resumed', {})
+
+    async def _handle_kick(self, message):
+        if self.role != 'host':
+            return
+        player_id = message['player_id']
+        try:
+            channel_name = await self._kick_player(self.session_id, player_id)
+        except PlayerNotInSession as exc:
+            await self._send_error(str(exc))
+            return
+        if channel_name:
+            await self.channel_layer.send(channel_name, {'type': 'game_kicked'})
+        await self._broadcast('player_joined', {'players': await self._get_players(self.session_id)})
+
     # -- difusion a la sala y helpers de envio --
 
     async def _broadcast(self, event, payload):
@@ -187,6 +224,10 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def game_event(self, message):
         await self.send(text_data=json.dumps({'event': message['event'], **message['payload']}))
+
+    async def game_kicked(self, message):
+        await self.send(text_data=json.dumps({'event': 'kicked'}))
+        await self.close()
 
     async def _send_error(self, detail):
         await self.send(text_data=json.dumps({'event': 'error', 'detail': detail}))
@@ -233,3 +274,23 @@ class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def _get_active_question(self, session_id, player_id):
         return GetActiveQuestion().execute(session_id, player_id)
+
+    @database_sync_to_async
+    def _set_player_channel_name(self, player_id, channel_name):
+        Player.objects.filter(id=player_id).update(channel_name=channel_name)
+
+    @database_sync_to_async
+    def _clear_player_channel_name(self, player_id):
+        Player.objects.filter(id=player_id).update(channel_name='')
+
+    @database_sync_to_async
+    def _pause_session(self, session_id):
+        return PauseSession().execute(session_id)
+
+    @database_sync_to_async
+    def _resume_session(self, session_id):
+        return ResumeSession().execute(session_id)
+
+    @database_sync_to_async
+    def _kick_player(self, session_id, player_id):
+        return KickPlayer().execute(session_id, player_id)

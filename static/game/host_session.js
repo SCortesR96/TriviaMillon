@@ -3,6 +3,7 @@ function hostSession(code, hostToken) {
     screen: 'connecting', // connecting | lobby | question | reveal | ended | fatal_error
     statusMessage: '',
     errorMessage: '',
+    paused: false,
     players: [],
     question: null,
     answeredPlayerIds: new Set(),
@@ -43,7 +44,9 @@ function hostSession(code, hostToken) {
           this.screen = 'question';
           this.question = message;
           this.answeredPlayerIds = new Set();
+          this.paused = false;
           this._startTimer();
+          window.TriviaSounds.playQuestionStart();
           break;
         case 'player_answered':
           this.answeredPlayerIds.add(message.player_id);
@@ -53,10 +56,17 @@ function hostSession(code, hostToken) {
           this.screen = 'reveal';
           this.revealData = message;
           break;
+        case 'paused':
+          this.paused = true;
+          break;
+        case 'resumed':
+          this.paused = false;
+          break;
         case 'game_ended':
           this._stopTimer();
           this.screen = 'ended';
           this.leaderboard = message.leaderboard;
+          window.TriviaSounds.playGameEnd();
           break;
       }
     },
@@ -73,6 +83,22 @@ function hostSession(code, hostToken) {
       this.ws.send(JSON.stringify({ type: 'next' }));
     },
 
+    skip() {
+      if (confirm('¿Saltar esta pregunta sin revelar la respuesta?')) {
+        this.ws.send(JSON.stringify({ type: 'next' }));
+      }
+    },
+
+    togglePause() {
+      this.ws.send(JSON.stringify({ type: this.paused ? 'resume' : 'pause' }));
+    },
+
+    kick(playerId) {
+      if (confirm('¿Expulsar a este jugador de la sala?')) {
+        this.ws.send(JSON.stringify({ type: 'kick', player_id: playerId }));
+      }
+    },
+
     end() {
       if (confirm('¿Terminar la partida ahora?')) {
         this.ws.send(JSON.stringify({ type: 'end' }));
@@ -87,7 +113,7 @@ function hostSession(code, hostToken) {
       this._stopTimer();
       this.timerSeconds = 20;
       this._timerId = setInterval(() => {
-        if (this.timerSeconds > 0) this.timerSeconds -= 1;
+        if (!this.paused && this.timerSeconds > 0) this.timerSeconds -= 1;
       }, 1000);
     },
 

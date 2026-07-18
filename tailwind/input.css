@@ -7,3 +7,24 @@
 [x-cloak] {
   display: none !important;
 }
+
+/*
+ * Animacion de reveal del leaderboard final: entrada escalonada por fila (animation-delay
+ * calculado en JS segun el indice). Tailwind no tiene un utility para "keyframe + delay
+ * variable por elemento", asi que este es el caso puntual de CSS custom que el roadmap
+ * (Fase 11) deja como excepcion justificada.
+ */
+@keyframes leaderboard-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.leaderboard-row {
+  animation: leaderboard-row-in 400ms ease-out both;
+}

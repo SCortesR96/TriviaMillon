@@ -13,6 +13,10 @@ class AlreadyAnswered(Exception):
     pass
 
 
+class SessionPaused(Exception):
+    pass
+
+
 class SubmitAnswer:
     """Registra la respuesta de un jugador a la pregunta activa y le acredita los puntos."""
 
@@ -24,6 +28,9 @@ class SubmitAnswer:
         response_time_ms: int | None = None,
     ) -> PlayerAnswer:
         session = GameSession.objects.get(id=session_id)
+        if session.is_paused:
+            raise SessionPaused('El host puso la partida en pausa')
+
         engine = build_engine_for_session(session)
 
         question = engine.current_question()

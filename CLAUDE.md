@@ -151,10 +151,10 @@ static/src/
 - [x] HTTPS/WSS, `ALLOWED_HOSTS`, `SECRET_KEY` real, `DEBUG=0` — `SECURE_PROXY_SSL_HEADER` + `CSRF_TRUSTED_ORIGINS` agregados para el proxy Traefik de Dokploy (termina TLS y reenvía por HTTP); `SECRET_KEY`/`ALLOWED_HOSTS`/`DEBUG` ya eran configurables por entorno, y ahora arranca con error si `DEBUG=0` y `SECRET_KEY` sigue siendo el de desarrollo
 - [x] Definir dónde se despliega — **decidido: Dokploy + VPS Contabo**
 
-**Fase 11 — Pulido**
-- [ ] Sonidos, animaciones de reveal (aquí sí se justifica algo de CSS custom puntual)
-- [ ] Controles de host: pausar, saltar pregunta, expulsar jugador
-- [ ] Leaderboard final animado
+**Fase 11 — Pulido** ✅ completada
+- [x] Sonidos, animaciones de reveal (aquí sí se justifica algo de CSS custom puntual) — sonidos sintetizados con Web Audio API (`static/game/sounds.js`, sin archivos de audio externos); animación de reveal del leaderboard con `@keyframes` puntual en `tailwind/input.css`
+- [x] Controles de host: pausar, saltar pregunta, expulsar jugador — nuevos eventos WS `pause`/`resume`/`kick`; "saltar" reutiliza `next` sin pasar por `reveal`
+- [x] Leaderboard final animado — entrada escalonada por fila (`animation-delay` calculado por índice)
 
 ## Reglas de colaboración para las próximas sesiones
 

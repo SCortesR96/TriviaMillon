@@ -42,6 +42,7 @@ class GameSession(models.Model):
     ladder_template = models.ForeignKey(LadderTemplate, on_delete=models.PROTECT, related_name='sessions')
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.LOBBY)
     current_level_index = models.PositiveIntegerField(default=0)
+    is_paused = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -55,6 +56,7 @@ class Player(models.Model):
     session = models.ForeignKey(GameSession, on_delete=models.CASCADE, related_name='players')
     nickname = models.CharField(max_length=50)
     client_token = models.CharField(max_length=64, blank=True)
+    channel_name = models.CharField(max_length=100, blank=True)  # canal WS actual, para poder expulsarlo
     score = models.IntegerField(default=0)
     joined_at = models.DateTimeField(auto_now_add=True)
 

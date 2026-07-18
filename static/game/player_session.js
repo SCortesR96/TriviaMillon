@@ -1,9 +1,10 @@
 function playerSession(prefilledCode) {
   return {
-    screen: 'join', // join | waiting | question | reveal | ended
+    screen: 'join', // join | waiting | question | reveal | ended | kicked
     code: prefilledCode || '',
     nickname: '',
     errorMessage: '',
+    paused: false,
     ws: null,
     playerId: null,
     playersCount: 0,
@@ -25,14 +26,14 @@ function playerSession(prefilledCode) {
       });
       this.ws.addEventListener('message', (event) => this._handleMessage(JSON.parse(event.data)));
       this.ws.addEventListener('close', () => {
-        if (this.screen !== 'ended') {
+        if (this.screen !== 'ended' && this.screen !== 'kicked') {
           this.errorMessage = 'Se perdio la conexion con el servidor.';
         }
       });
     },
 
     answer(optionId) {
-      if (this.hasAnswered) return;
+      if (this.hasAnswered || this.paused) return;
       this.selectedOptionId = optionId;
       this.hasAnswered = true;
       this.ws.send(JSON.stringify({ type: 'answer', option_id: optionId }));
@@ -76,14 +77,35 @@ function playerSession(prefilledCode) {
           this.question = message;
           this.hasAnswered = !!message.already_answered;
           this.selectedOptionId = null;
+          this.paused = false;
+          window.TriviaSounds.playQuestionStart();
           break;
         case 'answer_revealed':
           this.screen = 'reveal';
           this.revealData = message;
+          {
+            const mine = this.myResult();
+            const isCorrect = mine && mine.selected_option_id === message.correct_option_id;
+            if (isCorrect) {
+              window.TriviaSounds.playCorrect();
+            } else {
+              window.TriviaSounds.playIncorrect();
+            }
+          }
+          break;
+        case 'paused':
+          this.paused = true;
+          break;
+        case 'resumed':
+          this.paused = false;
           break;
         case 'game_ended':
           this.screen = 'ended';
           this.leaderboard = message.leaderboard;
+          window.TriviaSounds.playGameEnd();
+          break;
+        case 'kicked':
+          this.screen = 'kicked';
           break;
       }
     },
