@@ -140,9 +140,9 @@ static/src/
 - [x] Host elige `QuestionSet` y `LadderTemplate` al crear la sala — formulario de la Fase 6 (`host/new_session.html`)
 - [x] Admin puede gestionar múltiples mazos independientes — admin de `QuestionSet`/`LadderTemplate` de las Fases 2/4; verificado creando un segundo `QuestionSet` y `LadderTemplate` independientes y confirmando que ambos aparecen por separado en el formulario del host
 
-**Fase 9 — Tests end-to-end**
-- [ ] Suite de tests del flujo completo (crear sala → unirse varios jugadores → jugar → terminar)
-- [ ] Manejo de reconexión de un jugador que pierde la señal
+**Fase 9 — Tests end-to-end** ✅ completada
+- [x] Suite de tests del flujo completo (crear sala → unirse varios jugadores → jugar → terminar)
+- [x] Manejo de reconexión de un jugador que pierde la señal
 
 **Fase 10 — Producción**
 - [ ] Servidor ASGI (`daphne`/`uvicorn`) en vez de `runserver`

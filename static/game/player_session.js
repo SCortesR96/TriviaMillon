@@ -61,8 +61,8 @@ function playerSession(prefilledCode) {
       switch (message.event) {
         case 'joined':
           this.playerId = message.player_id;
-          // Si la partida ya esta en curso (reconexion), esta pantalla de espera se
-          // actualiza en cuanto llegue el proximo evento en tiempo real (Fase 9 mejora esto).
+          // Si la partida ya esta en curso (reconexion), el servidor manda enseguida
+          // un 'question_started' aparte con la pregunta activa (ver mas abajo).
           this.screen = 'waiting';
           break;
         case 'error':
@@ -74,7 +74,7 @@ function playerSession(prefilledCode) {
         case 'question_started':
           this.screen = 'question';
           this.question = message;
-          this.hasAnswered = false;
+          this.hasAnswered = !!message.already_answered;
           this.selectedOptionId = null;
           break;
         case 'answer_revealed':

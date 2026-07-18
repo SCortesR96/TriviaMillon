@@ -8,6 +8,7 @@ from .domain.lifecycle import InvalidTransition
 from .models import GameSession, Player
 from .services.advance_question import AdvanceQuestion
 from .services.end_session import EndSession
+from .services.get_active_question import GetActiveQuestion
 from .services.join_session import JoinSession, NicknameTaken, SessionNotJoinable
 from .services.reveal_answer import NoActiveQuestion as RevealNoActiveQuestion
 from .services.reveal_answer import RevealAnswer
@@ -109,6 +110,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'event': 'joined', 'role': 'player', 'player_id': player_id, 'status': session.status,
         }))
+
+        # Reconexion a media partida: si hay una pregunta activa, se la mandamos
+        # directo a este cliente (nadie mas) para que retome donde se quedo. Se envia
+        # antes del broadcast de abajo para que el orden de los mensajes propios sea
+        # deterministico (el eco del broadcast a uno mismo no tiene orden garantizado
+        # frente a otros self.send() posteriores).
+        active = await self._get_active_question(session.id, player_id)
+        if active is not None:
+            question, already_answered = active
+            await self.send(text_data=json.dumps({
+                'event': 'question_started', 'already_answered': already_answered,
+                **_question_payload(question),
+            }))
+
         await self._broadcast('player_joined', {'players': await self._get_players(session.id)})
 
     async def _handle_start(self, message):
@@ -214,3 +229,7 @@ class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def _end_session(self, session_id):
         return EndSession().execute(session_id)
+
+    @database_sync_to_async
+    def _get_active_question(self, session_id, player_id):
+        return GetActiveQuestion().execute(session_id, player_id)

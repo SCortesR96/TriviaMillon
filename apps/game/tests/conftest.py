@@ -1,5 +1,9 @@
-import pytest
+import json
 
+import pytest
+from channels.testing import WebsocketCommunicator
+
+from apps.game.consumers import GameConsumer
 from apps.game.models import GameSession, LadderTemplate, PrizeLevel
 from apps.questions.models import AnswerOption, Question, QuestionSet
 
@@ -37,3 +41,25 @@ def in_progress_session(lobby_session):
     lobby_session.status = GameSession.Status.IN_PROGRESS
     lobby_session.save(update_fields=['status'])
     return lobby_session
+
+
+@pytest.fixture(autouse=True)
+def in_memory_channel_layer(settings):
+    """GameConsumer tests no necesitan Redis real: InMemoryChannelLayer alcanza y es mas rapido."""
+    settings.CHANNEL_LAYERS = {
+        'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'},
+    }
+
+
+@pytest.fixture
+def connect_and_join():
+    """Helper para tests de GameConsumer: abre un WebSocket y manda el mensaje 'join'."""
+
+    async def _connect(**join_payload):
+        communicator = WebsocketCommunicator(GameConsumer.as_asgi(), '/ws/game/')
+        connected, _ = await communicator.connect()
+        assert connected
+        await communicator.send_to(text_data=json.dumps({'type': 'join', **join_payload}))
+        return communicator
+
+    return _connect
