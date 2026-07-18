@@ -94,12 +94,12 @@ static/src/
 **Fase 0 — Scaffold** ✅ completada
 - [x] Proyecto Django en blanco, Docker Compose (web + Postgres), settings vía `.env`, git inicializado
 
-**Fase 1 — Infra de tiempo real**
-- [ ] Agregar `channels`, `channels-redis`, `daphne`/`uvicorn` a `requirements.txt`
-- [ ] Agregar servicio `redis` a `docker-compose.yml`
-- [ ] Configurar `ASGI_APPLICATION`, `CHANNEL_LAYERS`, `asgi.py`, `routing.py`
-- [ ] Reorganizar la app `trivia` en `apps/questions` y `apps/game` (estructura de arriba)
-- [ ] Consumer de prueba (echo/ping) para validar que el WebSocket funciona de punta a punta en Docker
+**Fase 1 — Infra de tiempo real** ✅ completada
+- [x] Agregar `channels`, `channels-redis`, `daphne`/`uvicorn` a `requirements.txt`
+- [x] Agregar servicio `redis` a `docker-compose.yml`
+- [x] Configurar `ASGI_APPLICATION`, `CHANNEL_LAYERS`, `asgi.py`, `routing.py`
+- [x] Reorganizar la app `trivia` en `apps/questions` y `apps/game` (estructura de arriba)
+- [x] Consumer de prueba (echo/ping) para validar que el WebSocket funciona de punta a punta en Docker
 
 **Fase 2 — Banco de preguntas**
 - [ ] Modelos `Category`/`QuestionSet`, `Question`, `AnswerOption`

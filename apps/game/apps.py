@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 
 
-class TriviaConfig(AppConfig):
+class GameConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'trivia'
+    name = 'apps.game'
+    label = 'game'
