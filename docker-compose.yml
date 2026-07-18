@@ -30,12 +30,12 @@ services:
     env_file: .env
     volumes:
       - .:/app
-      # Tailwind/Alpine se compilan en la imagen (Dockerfile); estos volumenes nombrados
-      # se montan sobre esas subcarpetas para que el bind mount de arriba no las oculte.
-      # OJO: solo se llenan la primera vez que se crean. Si cambias templates/CSS y no ves
-      # el cambio, corre `docker compose down` + `docker volume rm triviamillon_tailwind_dist
-      # triviamillon_alpine_vendor` antes de reconstruir.
-      - tailwind_dist:/app/static/dist
+      # Alpine.js se resuelve una sola vez via npm en el build (Dockerfile); este volumen
+      # nombrado se monta sobre esa subcarpeta para que el bind mount de arriba no la oculte.
+      # No hace falta live-reload aqui: la libreria no cambia mientras desarrollas tu propio
+      # codigo. Si alguna vez actualizas la version de Alpine en package.json, reconstruye
+      # con `docker compose build web` (y de una vez `docker compose down` para que el volumen
+      # se vuelva a poblar, o `docker volume rm triviamillon_alpine_vendor`).
       - alpine_vendor:/app/static/vendor
     ports:
       - "8000:8000"
@@ -45,7 +45,15 @@ services:
       redis:
         condition: service_healthy
 
+  tailwind:
+    build: .
+    # static/dist SI vive en el bind mount normal (sin volumen nombrado): este contenedor
+    # recompila el CSS cada vez que cambia una clase en templates/apps y el resultado se ve
+    # de inmediato en el navegador (solo hace falta recargar la pagina), sin tocar Docker.
+    command: tailwindcss -i tailwind/input.css -o static/dist/output.css --watch=always
+    volumes:
+      - .:/app
+
 volumes:
   postgres_data:
-  tailwind_dist:
   alpine_vendor:
