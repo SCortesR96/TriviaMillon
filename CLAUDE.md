@@ -107,11 +107,11 @@ static/src/
 - [x] Management command `import_questions` (Excel → DB), con reporte de filas inválidas/duplicadas
 - [x] Importar las 1000 preguntas reales y validar una muestra a mano
 
-**Fase 3 — Motor del juego (dominio puro)**
-- [ ] `LadderStrategy` (escalera de puntos configurable)
-- [ ] `GameEngine` (selección de siguiente pregunta, cálculo de puntaje, condiciones de fin de partida)
-- [ ] Interfaces de repositorio (`QuestionRepository`, `SessionRepository`, `PlayerRepository`)
-- [ ] Tests unitarios del dominio (sin DB, sin Django) — cobertura alta porque es la parte más crítica
+**Fase 3 — Motor del juego (dominio puro)** ✅ completada
+- [x] `LadderStrategy` (escalera de puntos configurable)
+- [x] `GameEngine` (selección de siguiente pregunta, cálculo de puntaje, condiciones de fin de partida)
+- [x] Interfaces de repositorio (`QuestionRepository`, `SessionRepository`, `PlayerRepository`)
+- [x] Tests unitarios del dominio (sin DB, sin Django) — cobertura alta porque es la parte más crítica
 
 **Fase 4 — Use cases + repositorios Django**
 - [ ] `CreateSession`, `JoinSession` (código de sala + nickname), `StartQuestion`, `SubmitAnswer`, `RevealAnswer`, `AdvanceQuestion`, `EndSession`
