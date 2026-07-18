@@ -1,0 +1,14 @@
+{% load static %}<!doctype html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TriviaMillon{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+  <script src="{% static 'vendor/alpine.min.js' %}" defer></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-950 text-slate-100">
+  {% block content %}{% endblock %}
+</body>
+</html>

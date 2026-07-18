@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Nueva partida — TriviaMillon{% endblock %}
+{% block content %}
+<div class="min-h-full flex items-center justify-center p-6">
+  <form method="post" class="w-full max-w-md space-y-6 rounded-2xl bg-slate-900 p-8 shadow-xl ring-1 ring-slate-800">
+    {% csrf_token %}
+    <h1 class="text-2xl font-bold text-amber-400">Nueva partida</h1>
+
+    <div class="space-y-2">
+      <label for="question_set" class="block text-sm font-medium text-slate-300">Banco de preguntas</label>
+      <select id="question_set" name="question_set" required
+              class="w-full rounded-lg border-0 bg-slate-800 px-3 py-2 text-slate-100 focus:ring-2 focus:ring-amber-400">
+        {% for qs in question_sets %}
+          <option value="{{ qs.id }}">{{ qs.name }} ({{ qs.questions.count }} preguntas)</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="space-y-2">
+      <label for="ladder_template" class="block text-sm font-medium text-slate-300">Escalera de puntos</label>
+      <select id="ladder_template" name="ladder_template" required
+              class="w-full rounded-lg border-0 bg-slate-800 px-3 py-2 text-slate-100 focus:ring-2 focus:ring-amber-400">
+        {% for ladder in ladder_templates %}
+          <option value="{{ ladder.id }}">{{ ladder.name }} ({{ ladder.levels.count }} niveles)</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit"
+            class="w-full rounded-lg bg-amber-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-amber-400">
+      Crear sala
+    </button>
+  </form>
+</div>
+{% endblock %}

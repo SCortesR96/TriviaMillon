@@ -1,0 +1,9 @@
+{
+  "name": "triviamillon-assets",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Alpine.js empaquetado via npm (sin CDN) para el cliente WebSocket del host/jugador",
+  "dependencies": {
+    "alpinejs": "^3.14.0"
+  }
+}

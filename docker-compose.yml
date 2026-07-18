@@ -30,6 +30,13 @@ services:
     env_file: .env
     volumes:
       - .:/app
+      # Tailwind/Alpine se compilan en la imagen (Dockerfile); estos volumenes nombrados
+      # se montan sobre esas subcarpetas para que el bind mount de arriba no las oculte.
+      # OJO: solo se llenan la primera vez que se crean. Si cambias templates/CSS y no ves
+      # el cambio, corre `docker compose down` + `docker volume rm triviamillon_tailwind_dist
+      # triviamillon_alpine_vendor` antes de reconstruir.
+      - tailwind_dist:/app/static/dist
+      - alpine_vendor:/app/static/vendor
     ports:
       - "8000:8000"
     depends_on:
@@ -40,3 +47,5 @@ services:
 
 volumes:
   postgres_data:
+  tailwind_dist:
+  alpine_vendor:

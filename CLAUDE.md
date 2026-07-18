@@ -37,13 +37,14 @@ Django empuja naturalmente a mezclar todo en `models.py`/`views.py`. Para este p
 ## Stack técnico (objetivo)
 
 - Django 5.2 (ya instalado)
-- **Django Channels** + **channels-redis** para WebSockets — pendiente de agregar
-- **Redis** como servicio nuevo en `docker-compose.yml` — pendiente
+- **Django Channels** + **channels-redis** para WebSockets — agregado en Fase 1
+- **Redis** como servicio en `docker-compose.yml` — agregado en Fase 1
 - Postgres (ya configurado)
-- **Tailwind CSS** vía CLI standalone (sin depender de Node en runtime, solo en build) — pendiente de integrar
-- **Alpine.js** (vía npm bundle, no CDN) para reactividad ligera del lado del cliente que consume los mensajes WebSocket
-- `openpyxl` o `pandas` para el import de las 1000 preguntas desde Excel
-- `pytest` + `pytest-django` para tests del dominio y de integración
+- **Tailwind CSS** vía CLI standalone (v4, binario descargado en el Dockerfile; sin depender de Node en runtime, solo en build) — integrado en Fase 6
+- **Alpine.js** (vía npm bundle, no CDN; ver stage `alpine_vendor` en el Dockerfile) para reactividad ligera del lado del cliente que consume los mensajes WebSocket — integrado en Fase 6
+- `openpyxl` + `pandas` para el import de las 1000 preguntas desde Excel/CSV — agregado en Fase 2
+- `qrcode[pil]` para el QR de la pantalla de sala del host — agregado en Fase 6
+- `pytest` + `pytest-django` + `pytest-asyncio` para tests del dominio y de integración — agregado en Fases 3/5
 - Para producción: `daphne` o `uvicorn` (ASGI) en vez de solo `gunicorn` (WSGI), porque Channels necesita ASGI
 
 ## Estructura de carpetas objetivo
@@ -122,11 +123,11 @@ static/src/
 - [x] `GameConsumer`: conecta cliente ↔ use cases, delgado, sin lógica de negocio
 - [x] Eventos: join, start, answer, reveal, next, end, disconnect/reconexión
 
-**Fase 6 — UI del host (proyector)**
-- [ ] Pantalla de sala: código + QR para unirse
-- [ ] Pantalla de pregunta: texto, opciones, timer, conteo de quién ya respondió
-- [ ] Pantalla de resultados por pregunta + leaderboard
-- [ ] Tailwind, pensado para pantalla grande, pero responsive igual
+**Fase 6 — UI del host (proyector)** ✅ completada
+- [x] Pantalla de sala: código + QR para unirse
+- [x] Pantalla de pregunta: texto, opciones, timer, conteo de quién ya respondió
+- [x] Pantalla de resultados por pregunta + leaderboard
+- [x] Tailwind, pensado para pantalla grande, pero responsive igual
 
 **Fase 7 — UI del jugador (celular)**
 - [ ] Pantalla de unirse (código + nickname)

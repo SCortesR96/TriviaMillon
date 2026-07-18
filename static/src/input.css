@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../../apps";
+
+/* Alpine.js oculta [x-cloak] hasta que inicializa; Tailwind no cubre este selector. */
+[x-cloak] {
+  display: none !important;
+}

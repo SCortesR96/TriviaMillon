@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sala {{ code }} — TriviaMillon{% endblock %}
+{% block extra_head %}
+  {{ code|json_script:"session-code" }}
+  {{ host_token|json_script:"session-host-token" }}
+  <script src="{% static 'game/host_session.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div
+  x-data="hostSession(JSON.parse(document.getElementById('session-code').textContent), JSON.parse(document.getElementById('session-host-token').textContent))"
+  x-init="init()"
+  class="min-h-full flex flex-col"
+>
+  <header class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+    <h1 class="text-xl font-bold text-amber-400">TriviaMillon</h1>
+    <div class="text-lg font-mono tracking-widest text-slate-300">{{ code }}</div>
+  </header>
+
+  <div x-show="errorMessage" x-cloak class="bg-red-900/60 px-6 py-2 text-center text-red-200" x-text="errorMessage"></div>
+
+  <main class="flex-1 flex items-center justify-center p-8">
+
+    <template x-if="screen === 'connecting'">
+      <p class="text-2xl text-slate-400">Conectando con la sala…</p>
+    </template>
+
+    <template x-if="screen === 'fatal_error'">
+      <p class="text-2xl text-red-400" x-text="errorMessage"></p>
+    </template>
+
+    <div x-show="screen === 'lobby'" x-cloak class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <div class="text-center space-y-4">
+        <p class="text-slate-400">Escanea para unirte</p>
+        <img src="{% url 'game:host_qr' code %}" alt="QR para unirse" class="mx-auto rounded-xl bg-white p-4 w-64 h-64">
+        <p class="text-3xl font-mono tracking-[0.3em] text-amber-400">{{ code }}</p>
+      </div>
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold">Jugadores (<span x-text="players.length"></span>)</h2>
+        <ul class="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto">
+          <template x-for="player in players" :key="player.id">
+            <li class="rounded-lg bg-slate-800 px-3 py-2 text-center" x-text="player.nickname"></li>
+          </template>
+        </ul>
+        <button
+          @click="start()"
+          :disabled="players.length === 0"
+          class="w-full rounded-lg bg-amber-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Iniciar partida
+        </button>
+      </div>
+    </div>
+
+    <div x-show="screen === 'question'" x-cloak class="w-full max-w-4xl space-y-8">
+      <div class="flex items-center justify-between text-slate-400">
+        <span>Respondieron <span x-text="answeredCount()"></span> / <span x-text="players.length"></span></span>
+        <span class="text-2xl font-mono" x-text="timerSeconds"></span>
+      </div>
+      <h2 class="text-3xl font-bold text-center" x-text="question && question.text"></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <template x-for="option in (question ? question.options : [])" :key="option.id">
+          <div class="rounded-xl bg-slate-800 px-6 py-5 text-lg" x-text="option.text"></div>
+        </template>
+      </div>
+      <div class="flex justify-center gap-4">
+        <button @click="reveal()" class="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-400">
+          Revelar respuesta
+        </button>
+        <button @click="end()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
+          Terminar partida
+        </button>
+      </div>
+    </div>
+
+    <div x-show="screen === 'reveal'" x-cloak class="w-full max-w-3xl space-y-6">
+      <h2 class="text-2xl font-bold text-center text-amber-400">Respuesta revelada</h2>
+      <ul class="space-y-2 max-h-96 overflow-y-auto">
+        <template x-for="answer in (revealData ? revealData.answers : [])" :key="answer.player_id">
+          <li class="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3">
+            <span x-text="answer.nickname"></span>
+            <span
+              class="font-mono"
+              :class="answer.selected_option_id === revealData.correct_option_id ? 'text-emerald-400' : 'text-red-400'"
+              x-text="'+' + answer.points_awarded"
+            ></span>
+          </li>
+        </template>
+      </ul>
+      <div class="flex justify-center gap-4">
+        <button @click="next()" class="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-400">
+          Siguiente pregunta
+        </button>
+        <button @click="end()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
+          Terminar partida
+        </button>
+      </div>
+    </div>
+
+    <div x-show="screen === 'ended'" x-cloak class="w-full max-w-2xl space-y-6 text-center">
+      <h2 class="text-3xl font-bold text-amber-400">¡Partida terminada!</h2>
+      <ol class="space-y-2">
+        <template x-for="(player, index) in leaderboard" :key="player.id">
+          <li class="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3">
+            <span><span class="text-slate-500 mr-2" x-text="index + 1"></span><span x-text="player.nickname"></span></span>
+            <span class="font-mono text-amber-400" x-text="player.score"></span>
+          </li>
+        </template>
+      </ol>
+      <a href="{% url 'game:host_new_session' %}" class="inline-block rounded-lg bg-amber-500 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-400">
+        Nueva partida
+      </a>
+    </div>
+
+  </main>
+</div>
+{% endblock %}
