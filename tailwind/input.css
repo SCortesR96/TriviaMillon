@@ -28,3 +28,50 @@
 .leaderboard-row {
   animation: leaderboard-row-in 400ms ease-out both;
 }
+
+/*
+ * Fondo animado de todas las pantallas (degradado en movimiento + blobs de color
+ * flotando). Tailwind no tiene utilities para animar background-position ni para
+ * un keyframe de "float" con desfase, asi que es otra excepcion de CSS custom
+ * puntual, esta vez por puro criterio visual (que se vea bien en un portafolio),
+ * sin afectar la legibilidad del juego: es sutil y queda siempre detras del
+ * contenido (position: fixed, -z-10, blur, opacidad baja).
+ */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(-45deg, #020617, #1e1b4b, #312e81, #0f172a, #020617);
+  background-size: 400% 400%;
+  animation: gradient-shift 18s ease infinite;
+}
+
+@keyframes float-blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.15);
+  }
+  66% {
+    transform: translate(-25px, 25px) scale(0.9);
+  }
+}
+
+.blob {
+  animation: float-blob 20s ease-in-out infinite;
+}
+
+.blob-delay-1 {
+  animation-delay: -7s;
+}
+
+.blob-delay-2 {
+  animation-delay: -14s;
+}
