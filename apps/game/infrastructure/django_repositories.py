@@ -13,8 +13,11 @@ from ..models import GameSession, Player, PrizeLevel
 class DjangoQuestionRepository:
     """Implementacion de QuestionRepository sobre el ORM de Django."""
 
-    def get_questions_for_set(self, question_set_id: int) -> list[DomainQuestion]:
-        questions = ORMQuestion.objects.filter(question_set_id=question_set_id).prefetch_related('options')
+    def get_questions_for_set(self, question_set_id: int, difficulty: str = '') -> list[DomainQuestion]:
+        questions = ORMQuestion.objects.filter(question_set_id=question_set_id)
+        if difficulty:
+            questions = questions.filter(difficulty=difficulty)
+        questions = questions.prefetch_related('options')
         return [
             DomainQuestion(
                 id=q.id,
@@ -66,7 +69,7 @@ def build_ladder_strategy(ladder_template_id: int) -> FixedLadderStrategy:
 
 def build_engine_for_session(session: GameSession) -> GameEngine:
     """Reconstruye el GameEngine de dominio a partir del estado persistido de una GameSession."""
-    questions = DjangoQuestionRepository().get_questions_for_set(session.question_set_id)
+    questions = DjangoQuestionRepository().get_questions_for_set(session.question_set_id, session.difficulty)
     ladder = build_ladder_strategy(session.ladder_template_id)
     engine = GameEngine(questions, ladder)
     engine.status = SessionStatus(session.status)

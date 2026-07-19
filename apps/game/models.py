@@ -40,6 +40,8 @@ class GameSession(models.Model):
     host_token = models.CharField(max_length=64)
     question_set = models.ForeignKey(QuestionSet, on_delete=models.PROTECT, related_name='sessions')
     ladder_template = models.ForeignKey(LadderTemplate, on_delete=models.PROTECT, related_name='sessions')
+    # blank = todos los niveles del banco de preguntas, sin filtrar.
+    difficulty = models.CharField(max_length=20, choices=Question.Difficulty.choices, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.LOBBY)
     current_level_index = models.PositiveIntegerField(default=0)
     is_paused = models.BooleanField(default=False)

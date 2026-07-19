@@ -21,3 +21,17 @@ def test_generates_unique_codes(question_set, ladder_template):
     session_b = CreateSession().execute(question_set.id, ladder_template.id, host_token='host-2')
 
     assert session_a.code != session_b.code
+
+
+def test_stores_optional_difficulty_filter(question_set, ladder_template):
+    session = CreateSession().execute(
+        question_set.id, ladder_template.id, host_token='host-1', difficulty='experto',
+    )
+
+    assert session.difficulty == 'experto'
+
+
+def test_difficulty_defaults_to_empty_meaning_all_levels(question_set, ladder_template):
+    session = CreateSession().execute(question_set.id, ladder_template.id, host_token='host-1')
+
+    assert session.difficulty == ''

@@ -7,6 +7,7 @@ function hostSession(code, hostToken) {
     players: [],
     question: null,
     answeredPlayerIds: new Set(),
+    hostSelectedOptionId: null,
     revealData: null,
     leaderboard: [],
     timerSeconds: 0,
@@ -54,6 +55,7 @@ function hostSession(code, hostToken) {
           this.screen = 'question';
           this.question = message;
           this.answeredPlayerIds = new Set();
+          this.hostSelectedOptionId = null;
           this.paused = false;
           this._startTimer();
           window.TriviaSounds.playQuestionStart();
@@ -87,6 +89,23 @@ function hostSession(code, hostToken) {
 
     reveal() {
       this.ws.send(JSON.stringify({ type: 'reveal' }));
+    },
+
+    // Modo "un solo dispositivo": el host toca la opcion que dijeron los ninos
+    // en voz alta y se revela de inmediato si fue correcta.
+    selectAnswer(optionId) {
+      this.hostSelectedOptionId = optionId;
+      this.reveal();
+    },
+
+    correctOption() {
+      if (!this.question || !this.revealData) return null;
+      return this.question.options.find((o) => o.id === this.revealData.correct_option_id) || null;
+    },
+
+    hostAnsweredCorrectly() {
+      return this.hostSelectedOptionId !== null && this.revealData
+        && this.hostSelectedOptionId === this.revealData.correct_option_id;
     },
 
     next() {

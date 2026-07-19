@@ -21,6 +21,25 @@ def test_question_repository_maps_orm_to_domain_entities(question_set):
     assert sum(1 for o in first.options if o.is_correct) == 1
 
 
+def test_question_repository_filters_by_difficulty(question_set):
+    from apps.questions.models import Question
+
+    hard_question = question_set.questions.first()
+    hard_question.difficulty = Question.Difficulty.EXPERT
+    hard_question.save(update_fields=['difficulty'])
+
+    filtered = DjangoQuestionRepository().get_questions_for_set(question_set.id, difficulty='experto')
+
+    assert len(filtered) == 1
+    assert filtered[0].id == hard_question.id
+
+
+def test_question_repository_no_filter_returns_all_difficulties(question_set):
+    questions = DjangoQuestionRepository().get_questions_for_set(question_set.id, difficulty='')
+
+    assert len(questions) == 2
+
+
 def test_ladder_strategy_reflects_prize_levels(ladder_template):
     ladder = build_ladder_strategy(ladder_template.id)
 

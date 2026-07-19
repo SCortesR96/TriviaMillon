@@ -64,14 +64,19 @@
         <span class="text-2xl font-mono" x-text="timerSeconds"></span>
       </div>
       <h2 class="text-3xl font-bold text-center" x-text="question && question.text"></h2>
+      <p class="text-center text-slate-400 text-sm">Toca la opcion que hayan dicho los niños para revelar si es correcta</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <template x-for="option in (question ? question.options : [])" :key="option.id">
-          <div class="rounded-xl bg-slate-800 px-6 py-5 text-lg" x-text="option.text"></div>
+          <button
+            @click="selectAnswer(option.id)"
+            class="rounded-xl bg-slate-800 px-6 py-5 text-lg text-left transition hover:bg-slate-700"
+            x-text="option.text"
+          ></button>
         </template>
       </div>
       <div class="flex flex-wrap justify-center gap-4">
-        <button @click="reveal()" class="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-400">
-          Revelar respuesta
+        <button @click="reveal()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
+          Revelar sin elegir
         </button>
         <button @click="togglePause()" class="rounded-lg bg-slate-800 px-6 py-3 font-semibold text-slate-300 hover:bg-slate-700">
           <span x-text="paused ? 'Reanudar' : 'Pausar'"></span>
@@ -87,7 +92,29 @@
 
     <div x-show="screen === 'reveal'" x-cloak class="w-full max-w-3xl space-y-6">
       <h2 class="text-2xl font-bold text-center text-amber-400">Respuesta revelada</h2>
-      <ul class="space-y-2 max-h-96 overflow-y-auto">
+
+      <p
+        x-show="hostSelectedOptionId !== null"
+        x-cloak
+        class="text-center text-3xl font-bold"
+        :class="hostAnsweredCorrectly() ? 'text-emerald-400' : 'text-red-400'"
+        x-text="hostAnsweredCorrectly() ? '¡Correcto!' : 'Incorrecto'"
+      ></p>
+
+      <h3 class="text-xl font-semibold text-center" x-text="question && question.text"></h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <template x-for="option in (question ? question.options : [])" :key="option.id">
+          <div
+            class="rounded-xl px-6 py-5 text-lg flex items-center justify-between"
+            :class="revealData && option.id === revealData.correct_option_id ? 'bg-emerald-700' : 'bg-slate-800 opacity-60'"
+          >
+            <span x-text="option.text"></span>
+            <span x-show="option.id === hostSelectedOptionId" class="text-sm text-slate-300">(elegida)</span>
+          </div>
+        </template>
+      </div>
+
+      <ul x-show="revealData && revealData.answers.length > 0" x-cloak class="space-y-2 max-h-96 overflow-y-auto">
         <template x-for="answer in (revealData ? revealData.answers : [])" :key="answer.player_id">
           <li class="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3">
             <span x-text="answer.nickname"></span>

@@ -11,13 +11,20 @@ _MAX_ATTEMPTS = 10
 class CreateSession:
     """Crea una partida en estado lobby para un QuestionSet y LadderTemplate dados."""
 
-    def execute(self, question_set_id: int, ladder_template_id: int, host_token: str) -> GameSession:
+    def execute(
+        self,
+        question_set_id: int,
+        ladder_template_id: int,
+        host_token: str,
+        difficulty: str = '',
+    ) -> GameSession:
         code = self._generate_unique_code()
         return GameSession.objects.create(
             code=code,
             host_token=host_token,
             question_set_id=question_set_id,
             ladder_template_id=ladder_template_id,
+            difficulty=difficulty,
         )
 
     def _generate_unique_code(self) -> str:

@@ -5,7 +5,7 @@ from .lifecycle import SessionStatus
 
 
 class QuestionRepository(Protocol):
-    def get_questions_for_set(self, question_set_id: int) -> list[Question]: ...
+    def get_questions_for_set(self, question_set_id: int, difficulty: str = '') -> list[Question]: ...
 
 
 class SessionRepository(Protocol):

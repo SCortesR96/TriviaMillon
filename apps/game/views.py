@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from apps.questions.models import QuestionSet
+from apps.questions.models import Question, QuestionSet
 
 from .models import GameSession, LadderTemplate
 from .services.create_session import CreateSession
@@ -29,6 +29,7 @@ def host_new_session(request):
             question_set_id=request.POST['question_set'],
             ladder_template_id=request.POST['ladder_template'],
             host_token=secrets.token_urlsafe(24),
+            difficulty=request.POST.get('difficulty', ''),
         )
         url = reverse('game:host_session', args=[session.code])
         return redirect(f'{url}?token={session.host_token}')
@@ -36,6 +37,7 @@ def host_new_session(request):
     return render(request, 'host/new_session.html', {
         'question_sets': QuestionSet.objects.all(),
         'ladder_templates': LadderTemplate.objects.all(),
+        'difficulties': Question.Difficulty.choices,
     })
 
 
