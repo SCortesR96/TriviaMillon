@@ -4,6 +4,12 @@ python-dotenv~=1.0
 gunicorn~=23.0
 channels~=4.1
 channels-redis~=4.2
+# Fijado explicitamente: channels-redis 4.3.0 solo declara redis>=4.6 (sin
+# tope), y con redis-py 8.x el BRPOP con el que espera mensajes truena con
+# "redis.exceptions.TimeoutError: Timeout reading" a los pocos segundos de
+# estar inactivo, cerrando el WebSocket sin que nadie haga nada. 5.0 es la
+# version con la que channels-redis 4.x esta probado.
+redis~=5.0.0
 daphne~=4.1
 whitenoise~=6.7
 pandas~=2.2
