@@ -93,14 +93,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
+def _build_redis_url():
+    # Preferido si el proveedor (ej. Dokploy) ya da una URL completa con credenciales.
+    url = os.environ.get('REDIS_URL')
+    if url:
+        return url
+
+    host = os.environ.get('REDIS_HOST', 'redis')
+    port = os.environ.get('REDIS_PORT', '6379')
+    password = os.environ.get('REDIS_PASSWORD', '')
+    auth = f':{password}@' if password else ''
+    return f'redis://{auth}{host}:{port}/0'
+
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(
-                os.environ.get('REDIS_HOST', 'redis'),
-                int(os.environ.get('REDIS_PORT', '6379')),
-            )],
+            'hosts': [_build_redis_url()],
         },
     },
 }
