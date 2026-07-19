@@ -11,16 +11,26 @@ function hostSession(code, hostToken) {
     leaderboard: [],
     timerSeconds: 0,
     _timerId: null,
+    _heartbeatId: null,
     ws: null,
 
     init() {
+      if (this.ws) return; // evita abrir una segunda conexion si init() llega a correr mas de una vez
       const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-      this.ws = new WebSocket(`${protocol}://${location.host}/ws/game/`);
-      this.ws.addEventListener('open', () => {
-        this.ws.send(JSON.stringify({ type: 'join', role: 'host', code, host_token: hostToken }));
+      const socket = new WebSocket(`${protocol}://${location.host}/ws/game/`);
+      this.ws = socket;
+      socket.addEventListener('open', () => {
+        socket.send(JSON.stringify({ type: 'join', role: 'host', code, host_token: hostToken }));
+        // Mantiene viva la conexion durante pausas largas (ej. leyendo la pregunta en voz
+        // alta) para que un proxy de por medio no la cierre por inactividad.
+        this._heartbeatId = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'ping' }));
+        }, 25000);
       });
-      this.ws.addEventListener('message', (event) => this._handleMessage(JSON.parse(event.data)));
-      this.ws.addEventListener('close', () => {
+      socket.addEventListener('message', (event) => this._handleMessage(JSON.parse(event.data)));
+      socket.addEventListener('close', () => {
+        if (this.ws !== socket) return; // una conexion vieja se cerro, ya no es la activa
+        clearInterval(this._heartbeatId);
         if (this.screen !== 'ended') {
           this.errorMessage = 'Se perdio la conexion con el servidor.';
         }

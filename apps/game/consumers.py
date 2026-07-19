@@ -75,6 +75,12 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     # -- handlers de eventos entrantes --
 
+    async def _handle_ping(self, message):
+        # El cliente manda esto cada cierto tiempo solo para mantener viva la conexion
+        # (evita que un proxy de por medio la cierre por inactividad). No requiere
+        # haberse unido todavia y no toca nada del juego.
+        await self.send(text_data=json.dumps({'event': 'pong'}))
+
     async def _handle_join(self, message):
         code = message['code']
         role = message.get('role', 'player')

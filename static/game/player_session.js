@@ -6,6 +6,7 @@ function playerSession(prefilledCode) {
     errorMessage: '',
     paused: false,
     ws: null,
+    _heartbeatId: null,
     playerId: null,
     playersCount: 0,
     question: null,
@@ -16,16 +17,25 @@ function playerSession(prefilledCode) {
 
     join() {
       if (!this.code.trim() || !this.nickname.trim()) return;
+      if (this.ws) return; // evita abrir una segunda conexion si se toca "Unirse" mas de una vez
       this.errorMessage = '';
       const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-      this.ws = new WebSocket(`${protocol}://${location.host}/ws/game/`);
-      this.ws.addEventListener('open', () => {
-        this.ws.send(JSON.stringify({
+      const socket = new WebSocket(`${protocol}://${location.host}/ws/game/`);
+      this.ws = socket;
+      socket.addEventListener('open', () => {
+        socket.send(JSON.stringify({
           type: 'join', role: 'player', code: this.code.trim().toUpperCase(), nickname: this.nickname.trim(),
         }));
+        // Mantiene viva la conexion durante pausas largas para que un proxy de por
+        // medio no la cierre por inactividad.
+        this._heartbeatId = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'ping' }));
+        }, 25000);
       });
-      this.ws.addEventListener('message', (event) => this._handleMessage(JSON.parse(event.data)));
-      this.ws.addEventListener('close', () => {
+      socket.addEventListener('message', (event) => this._handleMessage(JSON.parse(event.data)));
+      socket.addEventListener('close', () => {
+        if (this.ws !== socket) return; // una conexion vieja se cerro, ya no es la activa
+        clearInterval(this._heartbeatId);
         if (this.screen !== 'ended' && this.screen !== 'kicked') {
           this.errorMessage = 'Se perdio la conexion con el servidor.';
         }

@@ -2,10 +2,35 @@ import json
 
 import pytest
 from channels.db import database_sync_to_async
+from channels.testing import WebsocketCommunicator
 
+from apps.game.consumers import GameConsumer
 from apps.questions.models import AnswerOption
 
 pytestmark = pytest.mark.django_db(transaction=True)
+
+
+async def test_ping_replies_with_pong_even_before_joining():
+    communicator = WebsocketCommunicator(GameConsumer.as_asgi(), '/ws/game/')
+    connected, _ = await communicator.connect()
+    assert connected
+
+    await communicator.send_to(text_data=json.dumps({'type': 'ping'}))
+    ack = json.loads(await communicator.receive_from())
+
+    assert ack['event'] == 'pong'
+    await communicator.disconnect()
+
+
+async def test_ping_replies_with_pong_after_joining(lobby_session, connect_and_join):
+    host = await connect_and_join(role='host', code=lobby_session.code, host_token=lobby_session.host_token)
+    await host.receive_from()  # joined
+
+    await host.send_to(text_data=json.dumps({'type': 'ping'}))
+    ack = json.loads(await host.receive_from())
+
+    assert ack['event'] == 'pong'
+    await host.disconnect()
 
 
 async def test_player_join_receives_confirmation(lobby_session, connect_and_join):
